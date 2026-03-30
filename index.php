@@ -1,3 +1,17 @@
+<?php
+$conn = mysqli_connect("localhost", "root", "", "portofolio");
+
+if (!$conn) {
+    die("Koneksi gagal: " . mysqli_connect_error());
+}
+?>
+
+<?php
+$profile = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM profile LIMIT 1"));
+$skills = mysqli_query($conn, "SELECT * FROM skills");
+$certificates = mysqli_query($conn, "SELECT * FROM certificates");
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -38,7 +52,7 @@
                 <div class="col-lg-7">
                     <h5 class="text-cyan mb-3">Halo, Saya</h5>
                     <h1 class="display-3 fw-bold mb-3">
-                        {{ name }}
+                        <?= htmlspecialchars($profile['name'] ?? 'Nama belum tersedia'); ?>
                     </h1>
                     <h2 class="h4 text-secondary mb-4">
                         Mahasiswa Sistem Informasi 2024
@@ -173,15 +187,19 @@
                 <div class="col-12">
                     <h3 class="text-cyan fw-bold mb-4 text-center">Keahlian</h3>
                 </div>
-                <div class="col-md-8"> <div v-for="skill in Keahlian" :key="skill.name" class="mb-4">
-                        <div class="d-flex justify-content-between text-white mb-2">
-                            <span>{{ skill.name }}</span>
-                            <span>{{ skill.level }}</span>
+
+                <div class="col-md-8">
+                    <?php while($skill = mysqli_fetch_assoc($skills)) { ?>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between text-white mb-2">
+                                <span><?= $skill['name']; ?></span>
+                                <span><?= $skill['level']; ?></span>
+                            </div>
+                            <div class="progress bg-dark">
+                                <div class="progress-bar bg-cyan-glow" style="width: <?= $skill['level']; ?>"></div>
+                            </div>
                         </div>
-                        <div class="progress bg-dark" style="height: 10px;">
-                            <div class="progress-bar bg-cyan-glow" :style="{ width: skill.level }"></div>
-                        </div>
-                    </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -199,62 +217,23 @@
             </div>
 
             <div class="row g-4">
-                <div v-for="cert in Sertifikat" :key="cert.title" class="col-md-4">
-                    <div class="cert-card p-3 rounded-4 h-100">
-                        <div class="cert-img-container mb-3 overflow-hidden rounded-3">
-                            <img :src="cert.image" :alt="cert.title" class="img-fluid cert-img">
+                <?php while($cert = mysqli_fetch_assoc($certificates)) { ?>
+                    <div class="col-md-4">
+                        <div class="cert-card p-3 rounded-4 h-100">
+                            <div class="cert-img-container mb-3 overflow-hidden rounded-3">
+                                <img src="<?= $cert['image']; ?>" class="img-fluid cert-img">
+                            </div>
+                            <h5 class="text-white fw-bold mb-2"><?= $cert['judul']; ?></h5>
+                            <p class="text-secondary small mb-0"><?= $cert['tahun']; ?></p>
+                            <p class="text-cyan small fw-bold"><?= $cert['penerbit']; ?></p>
                         </div>
-                        <h5 class="text-white fw-bold mb-2">{{ cert.Judul }}</h5>
-                        <p class="text-secondary small mb-0">{{ cert.Tahun }}</p>
-                        <p class="text-cyan small fw-bold">{{ cert.Penerbit }}</p>
                     </div>
-                </div>
+                <?php } ?>
             </div>
         </div>
     </section>
 
         </div>
-
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-    <script>
-        const { createApp } = Vue
-            createApp({
-                data() {
-                    return {
-                        name: 'Zyrus Alfredo Randan Malinggato',
-                        Keahlian: [
-                            { name: 'Software Development', level: '80%' },
-                            { name: 'MikroTik', level: '80%' },
-                            { name: 'Analisis & Visualisasi Data', level: '75%' },
-                            { name: 'Programming (Python)', level: '75%' },
-                        ],
-                        Sertifikat: [
-                            { 
-                                Judul: 'MikroTik Certified Network Associate (MTCNA)', 
-                                Penerbit: 'MIKROTIKLS SIA', 
-                                Tahun: 'Mar 2024 - Mar 2027',
-                                image: 'images/Sertifikat/MTCNA.jpg'
-                            },
-                            { 
-                                Judul: 'Peserta Hackathon TechnoFest IT v 2.25', 
-                                Penerbit: 'Universitas Muhammadiyah Kalimantan Timur', 
-                                Tahun: 'Juni 2025',
-                                image: 'images/Sertifikat/TechnoFest.jpg'
-                            },
-                            { 
-                                Judul: 'Belajar Penerapan Data Science dengan Microsoft Fabric', 
-                                Penerbit: 'Dicoding Indonesia', 
-                                Tahun: 'Feb 2026 - Feb 2029',
-                                image: 'images/Sertifikat/Dicoding(DataScience).jpg'
-                            }
-                        ]
-                    }
-                }
-            }).mount('#Web')
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
